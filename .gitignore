@@ -11,3 +11,5 @@ build/Release
 .idea
 *.iml
 .vscode
+
+lib
