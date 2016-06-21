@@ -1,7 +1,7 @@
 {
   "name": "redux-act-reducer",
   "version": "1.0.0",
-  "description": "An lib to create actions and reducers for Redux",
+  "description": "A lib to create actions and reducers for Redux",
   "main": "lib/index.js",
   "files": [
     "lib",
