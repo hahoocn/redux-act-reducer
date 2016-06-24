@@ -4,6 +4,7 @@
         "node": true,
         "mocha": true
     },
+    "parser": "babel-eslint",
     "plugins": ["import"],
     "rules": {
         "comma-dangle": ["warn", "only-multiline"],

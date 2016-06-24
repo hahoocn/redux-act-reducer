@@ -5,7 +5,7 @@ describe('createAction', () => {
   const TEST_ACTION = 'TEST_ACTION';
   const action = createAction(TEST_ACTION);
   const action2 = createAction(TEST_ACTION, 'argName1', 'argName2');
-  it('should return an function', () => {
+  it('should return a function', () => {
     expect(action).to.be.a('function');
     expect(action2).to.be.a('function');
   });
