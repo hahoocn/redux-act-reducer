@@ -2,10 +2,9 @@
 
 [![build status](https://img.shields.io/travis/hahoocn/redux-act-reducer/master.svg?style=flat-square)](https://travis-ci.org/hahoocn/redux-act-reducer) [![npm version](https://img.shields.io/npm/v/redux-act-reducer.svg?style=flat-square)](https://www.npmjs.com/package/redux-act-reducer)
 
-- Simple, Code neat
-- Not FSA, Not be bound, Don't have 'payload' everywhere
-- Support for creating async request action
-- Using action's 'subType' to identify the Reducer with the same action 'type'
+- Simple, concise code
+- Support for creating asynchronous action and reducer with simple code
+- When asynchronous, the same 'type' is distinguished by 'subType'
 - Works with redux-thunk
 
 ## Install
@@ -79,7 +78,9 @@ return {
 ```
 Will automatically assign to a new state object
 ```javascript
-return Object.assign({}, state, result);
+return Object.assign({}, state, {
+  info: 'hi'
+});
 ```
 
 ### createActionAsync
@@ -88,54 +89,54 @@ works with redux-thunk
 import { createActionAsync } from 'redux-act-reducer';
 
 export const SHOW_HELLO_ASYNC = 'SHOW_HELLO_ASYNC';
-export const showHelloAsync = createActionAsync(SHOW_HELLO_ASYNC, api);
-//api is a module that sends requests to a server.
+export const showHelloAsync = createActionAsync(SHOW_HELLO_ASYNC, api, 'hello');
+// api is a module that sends requests to a server.
 // createActionAsync will create 3 action with subType: REQUEST, SUCCESS, FAILURE
+// 'hello' is Asynchronous name
 ```
 ```javascript
 dispatch(showHelloAsync(arg1, arg2));
 // will dispatch:
-// dispatch({ type: 'SHOW_HELLO_ASYNC', subType: 'REQUEST' });
-// if success: dispatch({ type: 'SHOW_HELLO_ASYNC', subType: 'SUCCESS', res, receivedAt: Date.now() });
-// if error: dispatch({ type: 'SHOW_HELLO_ASYNC', subType: 'FAILURE', err });
+// dispatch({ type: 'SHOW_HELLO_ASYNC', subType: 'REQUEST', ... });
+// if success: dispatch({ type: 'SHOW_HELLO_ASYNC', subType: 'SUCCESS', res, receivedAt: Date.now(), ... });
+// if error: dispatch({ type: 'SHOW_HELLO_ASYNC', subType: 'FAILURE', err, ... });
 // args will pass to api: api(arg1, arg2)
 ```
-create reducer
+##### Create Reducer
 ```javascript
 import { createReducer } from 'redux-act-reducer';
-import { SHOW_HELLO_ASYNC, SHOW_HELLO, SHOW_HI } from '../your/actions/path';
+import { SHOW_HELLO_ASYNC } from '../your/actions/path';
 
 const defaultState = {};
 const hello = createReducer({
   [SHOW_HELLO_ASYNC](state, action) {
     return {
-      'REQUEST'() {
-        return {
-          isFetching: true
-        };
-      },
+      res: action.res
+    };
+  },
+  // Default is SUCCESS code.
+  // Will automatically generate REQUEST and FAILURE code, so that the code is simple.
+  ......
+
+}, defaultState);
+
+export default hello;
+```
+Same as
+
+```javascript
+import { createReducer } from 'redux-act-reducer';
+import { SHOW_HELLO_ASYNC } from '../your/actions/path';
+
+const defaultState = {};
+const hello = createReducer({
+  [SHOW_HELLO_ASYNC](state, action) {
+    return {
       'SUCCESS'() {
         return {
-          isFetching: false,
           res: action.res
         };
-      },
-      'FAILURE'() {
-        return {
-          isFetching: false,
-          err: action.err
-        };
       }
-    };
-  },
-  [SHOW_HELLO](state, action) {
-    return {
-      info: action.info
-    };
-  },
-  [SHOW_HI]() {
-    return {
-      info: 'hi'
     };
   },
 
@@ -144,4 +145,80 @@ const hello = createReducer({
 }, defaultState);
 
 export default hello;
+```
+Same as
+
+```javascript
+import { createReducer } from 'redux-act-reducer';
+import { SHOW_HELLO_ASYNC } from '../your/actions/path';
+
+const defaultState = {};
+const hello = createReducer({
+  [SHOW_HELLO_ASYNC](state, action) {
+    return {
+      'REQUEST'() {
+        return {
+          asyncStatus: {
+            hello: {
+              isFetching: true,
+              err: undefined,
+            }
+          }
+        };
+      },
+      'SUCCESS'() {
+        return {
+          asyncStatus: {
+            hello: {
+              isFetching: false,
+              err: undefined,
+            }
+          },
+          res: action.res
+        };
+      },
+      'FAILURE'() {
+        return {
+          asyncStatus: {
+            hello: {
+              isFetching: false,
+              err: action.err,
+            }
+          }
+        };
+      }
+    };
+  },
+
+  ......
+
+}, defaultState);
+
+export default hello;
+```
+When the Reducer does not have the REQUEST and FAILURE functions, createReducer will automatically generate the reducer and update the state
+
+The generated state looks like the following:
+```javascript
+state: {
+  asyncStatus: {
+    hello: {
+      isFetching: true,
+      err: undefined,
+    }
+  },
+  ...
+}
+```
+If there is no name, then use type as the name
+```javascript
+state: {
+  asyncStatus: {
+    SHOW_HELLO_ASYNC: {
+      isFetching: true,
+      err: undefined,
+    }
+  },
+  ...
+}
 ```

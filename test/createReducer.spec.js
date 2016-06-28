@@ -84,11 +84,39 @@ describe('createReducer', () => {
       },
     }, defaultState);
 
+    const reducer5 = createReducer({
+      [TEST_ACTION](state, action) {
+        return {
+          res: action.res
+        };
+      },
+    }, defaultState);
+
     describe('with subType action (async)', () => {
       it('"REQUEST" subtype should equal to the value as expected', () => {
-        const action = { type: 'TEST_ACTION', subType: 'REQUEST' };
+        const action = {
+          type: 'TEST_ACTION',
+          subType: 'REQUEST',
+          async: { isAsync: true, name: 'TEST_ASYNC' }
+        };
         const stateObj = reducer4({}, action);
         expect(stateObj).to.eql({ isFetching: true });
+      });
+      it('(autogeneration) "REQUEST" subtype should equal to the value as expected', () => {
+        const action = {
+          type: 'TEST_ACTION',
+          subType: 'REQUEST',
+          async: { isAsync: true, name: 'TEST_ASYNC' }
+        };
+        const stateObj = reducer5({}, action);
+        expect(stateObj).to.eql({
+          asyncStatus: {
+            TEST_ASYNC: {
+              isFetching: true,
+              err: undefined
+            }
+          }
+        });
       });
       it('"SUCCESS" subtype should equal to the value as expected', () => {
         const action = {
@@ -100,6 +128,25 @@ describe('createReducer', () => {
         const stateObj = reducer4({}, action);
         expect(stateObj).to.eql({ isFetching: false, res: { info: 'hello', name: 'world!' } });
       });
+      it('(autogeneration) "SUCCESS" subtype should equal to the value as expected', () => {
+        const action = {
+          type: 'TEST_ACTION',
+          subType: 'SUCCESS',
+          res: { info: 'hello', name: 'world!' },
+          receivedAt: Date.now(),
+          async: { isAsync: true, name: 'TEST_ASYNC' }
+        };
+        const stateObj = reducer5({}, action);
+        expect(stateObj).to.eql({
+          asyncStatus: {
+            TEST_ASYNC: {
+              isFetching: false,
+              err: undefined
+            }
+          },
+          res: { info: 'hello', name: 'world!' }
+        });
+      });
       it('"FAILURE" subtype should equal to the value as expected', () => {
         const action = {
           type: 'TEST_ACTION',
@@ -108,6 +155,23 @@ describe('createReducer', () => {
         };
         const stateObj = reducer4({}, action);
         expect(stateObj).to.eql({ isFetching: false, err: 'error!' });
+      });
+      it('(autogeneration) "FAILURE" subtype should equal to the value as expected', () => {
+        const action = {
+          type: 'TEST_ACTION',
+          subType: 'FAILURE',
+          err: 'error!',
+          async: { isAsync: true, name: 'TEST_ASYNC' }
+        };
+        const stateObj = reducer5({}, action);
+        expect(stateObj).to.eql({
+          asyncStatus: {
+            TEST_ASYNC: {
+              isFetching: false,
+              err: 'error!'
+            }
+          }
+        });
       });
     });
   });
