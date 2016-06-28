@@ -22,7 +22,11 @@ describe('createActionAsync', () => {
 
     it('dispatch REQUEST action as expected', () => {
       const test = action()(dispatch).then((v) => {
-        expect(v.request).to.eql({ type: 'TEST_ASYNC', subType: 'REQUEST' });
+        expect(v.request).to.eql({
+          type: 'TEST_ASYNC',
+          subType: 'REQUEST',
+          async: { isAsync: true, name: 'TEST_ASYNC' }
+        });
       });
       return test;
     });
@@ -35,6 +39,7 @@ describe('createActionAsync', () => {
           subType: 'SUCCESS',
           res: { info: 'hello', name: 'world!' },
           receivedAt: undefined,
+          async: { isAsync: true, name: 'TEST_ASYNC' }
         });
       });
       return test;
@@ -44,7 +49,8 @@ describe('createActionAsync', () => {
         expect(v.failure).to.eql({
           type: 'TEST_ASYNC',
           subType: 'FAILURE',
-          err: 'error!!'
+          err: 'error!!',
+          async: { isAsync: true, name: 'TEST_ASYNC' }
         });
       });
       return test;
