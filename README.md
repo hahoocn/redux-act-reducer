@@ -14,7 +14,7 @@ npm install redux-act-reducer --save
 
 ## Example
 - [createAction](https://github.com/hahoocn/react-mobile-boilerplate/blob/master/src/actions/home.js)
-- [dispatch](https://github.com/hahoocn/react-mobile-boilerplate/blob/master/src/containers/Home.js)
+- [dispatch](https://github.com/hahoocn/react-mobile-boilerplate/blob/master/src/containers/Home/Home.js)
 - [createReducer](https://github.com/hahoocn/react-mobile-boilerplate/blob/master/src/reducers/home.js)
 
 ## Usage
@@ -94,7 +94,7 @@ works with redux-thunk
 import { createActionAsync } from 'redux-act-reducer';
 
 export const SHOW_HELLO_ASYNC = 'SHOW_HELLO_ASYNC';
-export const showHelloAsync = createActionAsync(SHOW_HELLO_ASYNC, api, 'hello');
+export const showHelloAsync = createActionAsync(SHOW_HELLO_ASYNC, api, 'asyncName');
 // api is a module that sends requests to a server.
 // createActionAsync will create 3 action with subType: REQUEST, SUCCESS, FAILURE
 // 'hello' is Asynchronous name
@@ -206,24 +206,32 @@ When the Reducer does not have the REQUEST and FAILURE functions, createReducer 
 The generated state looks like the following:
 ```javascript
 state: {
-  asyncStatus: {
-    hello: {
-      isFetching: true,
-      err: undefined,
-    }
+  hello: {
+    asyncStatus: {
+      asyncName: {
+        isFetching: true,
+        err: undefined,
+      }
+    },
+    ...
   },
+
   ...
 }
 ```
 If there is no name, then use type as the name
 ```javascript
 state: {
-  asyncStatus: {
-    SHOW_HELLO_ASYNC: {
-      isFetching: true,
-      err: undefined,
-    }
-  },
+  hello: {
+    asyncStatus: {
+      SHOW_HELLO_ASYNC: {
+        isFetching: true,
+        err: undefined,
+      }
+    },
+    ...
+  }
+
   ...
 }
 ```
