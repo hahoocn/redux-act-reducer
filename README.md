@@ -111,8 +111,7 @@ dispatch(showHelloAsync(arg1, arg2));
 - `type` action type
 - `api` a module that sends requests to a server
 
-  ##### options
-  string or object. (if it is a string, it is async name)
+  #### options (string or object. if it is a string, it is async name)
 * `name` async name (default: same as `type`)
 * `isCreateRequest` whether to create and dispatch REQUEST action automatically (default: true)
 * `isCreateSuccess` whether to create and dispatch SUCCESS action automatically (default: true)
