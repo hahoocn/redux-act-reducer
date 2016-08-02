@@ -107,7 +107,33 @@ dispatch(showHelloAsync(arg1, arg2));
 // if error: dispatch({ type: 'SHOW_HELLO_ASYNC', subType: 'FAILURE', err, ... });
 // args will pass to api: api(arg1, arg2)
 ```
-##### Create Reducer
+#### createActionAsync(type, api, options)
+- `type` action type
+- `api` a module that sends requests to a server (Please return a promise)
+
+  #### options (string or object. if it is a string, it is async name)
+* `name` async name (default: same as `type`)
+* `isCreateRequest` whether to create and dispatch REQUEST action automatically (default: true)
+* `isCreateSuccess` whether to create and dispatch SUCCESS action automatically (default: true)
+* `isCreateFailure` whether to create and dispatch FAILURE action automatically (default: true)
+* `onRequest` function after REQUEST: onRequest(dispatch)
+* `onSuccess` function after SUCCESS: onSuccess(dispatch, res)
+* `onFailure` function after FAILURE: onFailure(dispatch, err)
+
+```javascript
+//Example
+export const switchFlag = createActionAsync(SWITCH_FLAG, switchFlagApi, {
+  name: 'switchFlag',
+  onRequest(dispatch) {
+    dispatch(shouldUpdate(true));
+  },
+  onSuccess(dispatch, res) {
+    dispatch(shouldUpdate(false));
+  }
+});
+```
+
+#### createReducer
 ```javascript
 import { createReducer } from 'redux-act-reducer';
 import { SHOW_HELLO_ASYNC } from '../your/actions/path';
@@ -235,3 +261,6 @@ state: {
   ...
 }
 ```
+
+## License
+MIT

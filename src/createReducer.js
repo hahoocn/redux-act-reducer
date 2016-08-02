@@ -9,51 +9,46 @@ function createReducer(handlers, defaultState) {
 
         if (action.async && action.async.isAsync) {
           if (action.subType === 'REQUEST' && !handler.toString().includes('function REQUEST()')) {
-            const newState = state;
-            if (!newState.asyncStatus) {
-              newState.asyncStatus = {};
-            }
-            if (!newState.asyncStatus[action.async.name]) {
-              newState.asyncStatus[action.async.name] = {};
-            }
-            newState.asyncStatus[action.async.name].isFetching = true;
-            newState.asyncStatus[action.async.name].err = undefined;
-            return Object.assign({}, newState);
+            const obj = {};
+            obj[action.async.name] = {
+              isFetching: true,
+              err: undefined
+            };
+            return Object.assign({}, state, {
+              asyncStatus: Object.assign({}, state.asyncStatus, { ...obj })
+            });
           }
           if (action.subType === 'FAILURE' && !handler.toString().includes('function FAILURE()')) {
-            const newState = state;
-            if (!newState.asyncStatus) {
-              newState.asyncStatus = {};
-            }
-            if (!newState.asyncStatus[action.async.name]) {
-              newState.asyncStatus[action.async.name] = {};
-            }
-            newState.asyncStatus[action.async.name].isFetching = false;
-            newState.asyncStatus[action.async.name].err = action.err;
-            return Object.assign({}, newState);
+            const obj = {};
+            obj[action.async.name] = {
+              isFetching: false,
+              err: action.err
+            };
+            return Object.assign({}, state, {
+              asyncStatus: Object.assign({}, state.asyncStatus, { ...obj })
+            });
           }
         }
 
         const subHandlers = handler(state, action);
         const subHandler = subHandlers[action.subType];
         if (action.async && action.async.isAsync && action.subType === 'SUCCESS') {
-          let newState = undefined;
+          const obj = {};
+          obj[action.async.name] = {
+            isFetching: false,
+            err: undefined
+          };
+          let newState;
           if (typeof subHandler === 'function') {
-            newState = Object.assign({}, state, subHandler(state, action));
+            newState = Object.assign({}, state, {
+              asyncStatus: Object.assign({}, state.asyncStatus, { ...obj }),
+              ...subHandler(state, action)
+            });
           } else {
-            newState = Object.assign({}, state, subHandlers);
-          }
-
-          if (!subHandlers.REQUEST || !subHandlers.FAILURE) {
-            if (!newState.asyncStatus) {
-              newState.asyncStatus = {};
-            }
-            if (!newState.asyncStatus[action.async.name]) {
-              newState.asyncStatus[action.async.name] = {};
-            }
-            newState.asyncStatus[action.async.name].isFetching = false;
-            newState.asyncStatus[action.async.name].err = undefined;
-            newState = Object.assign({}, newState);
+            newState = Object.assign({}, state, {
+              asyncStatus: Object.assign({}, state.asyncStatus, { ...obj }),
+              ...subHandlers
+            });
           }
 
           return newState;
