@@ -109,7 +109,7 @@ dispatch(showHelloAsync(arg1, arg2));
 ```
 #### createActionAsync(type, api, options)
 - `type` action type
-- `api` a module that sends requests to a server
+- `api` a module that sends requests to a server (Please return a promise)
 
   #### options (string or object. if it is a string, it is async name)
 * `name` async name (default: same as `type`)
@@ -133,7 +133,7 @@ export const switchFlag = createActionAsync(SWITCH_FLAG, switchFlagApi, {
 });
 ```
 
-##### createReducer
+#### createReducer
 ```javascript
 import { createReducer } from 'redux-act-reducer';
 import { SHOW_HELLO_ASYNC } from '../your/actions/path';
@@ -261,3 +261,6 @@ state: {
   ...
 }
 ```
+
+## License
+MIT
