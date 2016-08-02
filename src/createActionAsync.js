@@ -1,30 +1,65 @@
-function createActionAsync(type, api, name) {
+function createActionAsync(type, api, options) {
   return (...args) => async (dispatch) => {
-    let asyncName = name;
-    if (!asyncName) {
-      asyncName = type;
-    }
-    const actionObj = {
-      request: { type, subType: 'REQUEST', async: { isAsync: true, name: asyncName } }
+    const defaultOpts = {
+      name: type,
+      isCreateRequest: true,
+      isCreateSuccess: true,
+      isCreateFailure: true,
+      onRequest: undefined,
+      onSuccess: undefined,
+      onFailure: undefined
     };
-    dispatch(actionObj.request);
-    try {
-      const res = await api(...args);
-      actionObj.success = {
+
+    if (options && typeof options === 'object') {
+      Object.assign(defaultOpts, options);
+    }
+    if (options && typeof options === 'string') {
+      Object.assign(defaultOpts, { name: options });
+    }
+
+    const actionObj = {};
+
+    if (defaultOpts.isCreateRequest) {
+      actionObj.request = {
         type,
-        subType: 'SUCCESS',
-        async: { isAsync: true, name: asyncName },
-        res,
-        receivedAt: Date.now()
+        subType: 'REQUEST',
+        async: { isAsync: true, name: defaultOpts.name }
       };
-      dispatch(actionObj.success);
+      dispatch(actionObj.request);
+    }
+    if (defaultOpts.onRequest && typeof defaultOpts.onRequest === 'function') {
+      defaultOpts.onRequest(dispatch);
+    }
+
+    try {
+      const res = await api(...args, dispatch);
+      if (defaultOpts.isCreateSuccess) {
+        actionObj.success = {
+          type,
+          subType: 'SUCCESS',
+          async: { isAsync: true, name: defaultOpts.name },
+          res,
+          receivedAt: Date.now()
+        };
+        dispatch(actionObj.success);
+      }
+      if (defaultOpts.onSuccess && typeof defaultOpts.onSuccess === 'function') {
+        defaultOpts.onSuccess(dispatch, res);
+      }
     } catch (err) {
-      actionObj.failure = { type,
-        subType: 'FAILURE',
-        err,
-        async: { isAsync: true, name: asyncName }
-      };
-      dispatch(actionObj.failure);
+      if (defaultOpts.isCreateFailure) {
+        actionObj.failure = {
+          type,
+          subType: 'FAILURE',
+          err,
+          async: { isAsync: true, name: defaultOpts.name }
+        };
+        dispatch(actionObj.failure);
+      }
+      if (defaultOpts.onFailure && typeof defaultOpts.onFailure === 'function') {
+        defaultOpts.onFailure(dispatch, err);
+      }
+
       return Promise.reject(actionObj);
     }
 
