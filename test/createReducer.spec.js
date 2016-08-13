@@ -138,12 +138,6 @@ describe('createReducer', () => {
         };
         const stateObj = reducer5({}, action);
         expect(stateObj).to.eql({
-          asyncStatus: {
-            TEST_ASYNC: {
-              isFetching: false,
-              err: undefined
-            }
-          },
           res: { info: 'hello', name: 'world!' }
         });
       });
