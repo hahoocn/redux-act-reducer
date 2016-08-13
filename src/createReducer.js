@@ -34,21 +34,31 @@ function createReducer(handlers, defaultState) {
         const subHandler = subHandlers[action.subType];
         if (action.async && action.async.isAsync && action.subType === 'SUCCESS') {
           const obj = {};
-          obj[action.async.name] = {
-            isFetching: false,
-            err: undefined
-          };
+          if (state.asyncStatus && state.asyncStatus[action.async.name]) {
+            obj[action.async.name] = {
+              isFetching: false,
+              err: undefined
+            };
+          }
           let newState;
           if (typeof subHandler === 'function') {
-            newState = Object.assign({}, state, {
-              asyncStatus: Object.assign({}, state.asyncStatus, { ...obj }),
-              ...subHandler(state, action)
-            });
+            if (state.asyncStatus && state.asyncStatus[action.async.name]) {
+              newState = Object.assign({}, state, {
+                asyncStatus: Object.assign({}, state.asyncStatus, { ...obj }),
+                ...subHandler(state, action)
+              });
+            } else {
+              newState = Object.assign({}, state, { ...subHandler(state, action) });
+            }
           } else {
-            newState = Object.assign({}, state, {
-              asyncStatus: Object.assign({}, state.asyncStatus, { ...obj }),
-              ...subHandlers
-            });
+            if (state.asyncStatus && state.asyncStatus[action.async.name]) {
+              newState = Object.assign({}, state, {
+                asyncStatus: Object.assign({}, state.asyncStatus, { ...obj }),
+                ...subHandlers
+              });
+            } else {
+              newState = Object.assign({}, state, { ...subHandlers });
+            }
           }
 
           return newState;
