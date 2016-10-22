@@ -50,15 +50,13 @@ function createReducer(handlers, defaultState) {
             } else {
               newState = Object.assign({}, state, { ...subHandler(state, action) });
             }
+          } else if (state.asyncStatus && state.asyncStatus[action.async.name]) {
+            newState = Object.assign({}, state, {
+              asyncStatus: Object.assign({}, state.asyncStatus, { ...obj }),
+              ...subHandlers
+            });
           } else {
-            if (state.asyncStatus && state.asyncStatus[action.async.name]) {
-              newState = Object.assign({}, state, {
-                asyncStatus: Object.assign({}, state.asyncStatus, { ...obj }),
-                ...subHandlers
-              });
-            } else {
-              newState = Object.assign({}, state, { ...subHandlers });
-            }
+            newState = Object.assign({}, state, { ...subHandlers });
           }
 
           return newState;

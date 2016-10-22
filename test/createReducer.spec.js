@@ -1,3 +1,4 @@
+/* eslint import/no-extraneous-dependencies: ["error", {"devDependencies": true}] */
 import { expect } from 'chai';
 import createReducer from '../src/createReducer';
 

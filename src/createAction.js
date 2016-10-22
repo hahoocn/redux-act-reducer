@@ -11,7 +11,7 @@ function createAction(type, ...argNames) {
   }
 
   return (data) => {
-    let action = undefined;
+    let action;
     if (data) {
       action = Object.assign(data, { type });
     } else {
