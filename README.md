@@ -7,7 +7,7 @@
 - When asynchronous, the same 'type' is distinguished by 'subType'
 - Works with redux-thunk
 
-> Note: since version 2, createReducer no longer uses Object.assign to automatically merge state. If you want to continue to use, please set the createReducer option cxx to true
+> Note: since version 2, createReducer no longer uses Object.assign to automatically merge state. If you want to continue to use, please set the createReducer option autoAssign to true
 
 ## Install
 ```
