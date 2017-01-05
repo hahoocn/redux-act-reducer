@@ -1,13 +1,22 @@
-function createReducer(handlers, defaultState) {
+function createReducer(handlers, defaultState, options) {
+  const opts = {
+    autoAssign: false
+  };
+  if (options) {
+    Object.assign(opts, options);
+  }
   return (state = defaultState, action) => {
     if (action.type) {
       const handler = handlers[action.type];
       if (typeof handler === 'function') {
         if (!action.subType) {
-          return Object.assign({}, state, handler(state, action));
+          if (opts.autoAssign) {
+            return Object.assign({}, state, handler(state, action));
+          }
+          return handler(state, action);
         }
 
-        if (action.async && action.async.isAsync) {
+        if (opts.autoAssign && action.async && action.async.isAsync) {
           if (action.subType === 'REQUEST' && !handler.toString().includes('function REQUEST()')) {
             const obj = {};
             obj[action.async.name] = {
@@ -32,7 +41,7 @@ function createReducer(handlers, defaultState) {
 
         const subHandlers = handler(state, action);
         const subHandler = subHandlers[action.subType];
-        if (action.async && action.async.isAsync && action.subType === 'SUCCESS') {
+        if (opts.autoAssign && action.async && action.async.isAsync && action.subType === 'SUCCESS') {
           const obj = {};
           if (state.asyncStatus && state.asyncStatus[action.async.name]) {
             obj[action.async.name] = {
@@ -63,7 +72,10 @@ function createReducer(handlers, defaultState) {
         }
 
         if (typeof subHandler === 'function') {
-          return Object.assign({}, state, subHandler(state, action));
+          if (opts.autoAssign) {
+            return Object.assign({}, state, subHandler(state, action));
+          }
+          return subHandler(state, action);
         }
       }
     }

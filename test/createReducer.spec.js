@@ -14,7 +14,7 @@ describe('createReducer', () => {
     [TEST_ACTION]() {
       return { test: 123 };
     },
-  }, defaultState);
+  }, defaultState, { autoAssign: true });
 
   it('should return a function', () => {
     expect(reducer).to.be.a('function');
@@ -83,7 +83,7 @@ describe('createReducer', () => {
           }
         };
       },
-    }, defaultState);
+    }, defaultState, { autoAssign: true });
 
     const reducer5 = createReducer({
       [TEST_ACTION](state, action) {
@@ -91,7 +91,7 @@ describe('createReducer', () => {
           res: action.res
         };
       },
-    }, defaultState);
+    }, defaultState, { autoAssign: true });
 
     describe('with subType action (async)', () => {
       it('"REQUEST" subtype should equal to the value as expected', () => {
