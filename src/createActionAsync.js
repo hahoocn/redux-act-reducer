@@ -38,8 +38,7 @@ function createActionAsync(type, api, options) {
           type,
           subType: 'SUCCESS',
           async: { isAsync: true, name: defaultOpts.name },
-          res,
-          receivedAt: Date.now()
+          res
         };
         dispatch(actionObj.success);
       }
@@ -51,8 +50,8 @@ function createActionAsync(type, api, options) {
         actionObj.failure = {
           type,
           subType: 'FAILURE',
-          err,
-          async: { isAsync: true, name: defaultOpts.name }
+          async: { isAsync: true, name: defaultOpts.name },
+          err
         };
         dispatch(actionObj.failure);
       }

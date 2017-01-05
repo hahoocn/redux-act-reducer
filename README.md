@@ -182,7 +182,7 @@ export const showHelloAsync = createActionAsync(SHOW_HELLO_ASYNC, api, 'asyncNam
 dispatch(showHelloAsync(arg1, arg2));
 // will dispatch:
 // dispatch({ type: 'SHOW_HELLO_ASYNC', subType: 'REQUEST', ... });
-// if success: dispatch({ type: 'SHOW_HELLO_ASYNC', subType: 'SUCCESS', res, receivedAt: Date.now(), ... });
+// if success: dispatch({ type: 'SHOW_HELLO_ASYNC', subType: 'SUCCESS', res, ... });
 // if error: dispatch({ type: 'SHOW_HELLO_ASYNC', subType: 'FAILURE', err, ... });
 // args will pass to api: api(arg1, arg2)
 ```
