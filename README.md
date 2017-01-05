@@ -15,7 +15,7 @@ npm install redux-act-reducer --save
 ```
 
 ## Example
-- [createAction](https://github.com/hahoocn/react-mobile-boilerplate/blob/master/src/containers/Home/index.js)
+- [createAction](https://github.com/hahoocn/react-mobile-boilerplate/blob/master/src/containers/Home/actions.js)
 - [dispatch](https://github.com/hahoocn/react-mobile-boilerplate/blob/master/src/containers/Home/index.js)
 - [createReducer](https://github.com/hahoocn/react-mobile-boilerplate/blob/master/src/containers/Home/reducer.js)
 
