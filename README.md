@@ -7,6 +7,8 @@
 - When asynchronous, the same 'type' is distinguished by 'subType'
 - Works with redux-thunk
 
+> Note: since version 2, createReducer no longer uses Object.assign to automatically merge state. If you want to continue to use, please set the createReducer option cxx to true
+
 ## Install
 ```
 npm install redux-act-reducer --save
@@ -18,17 +20,23 @@ npm install redux-act-reducer --save
 - [createReducer](https://github.com/hahoocn/react-mobile-boilerplate/blob/master/src/reducers/home.js)
 
 ## Usage
-### createAction
+### createAction(type, [...args])
+Action creator
 ```javascript
 import { createAction } from 'redux-act-reducer';
 
 export const SHOW_HELLO = 'SHOW_HELLO';
 export const showHello = createAction(SHOW_HELLO, 'info');
+
+export const SHOW_HI = 'SHOW_HI';
+export const showHi = createAction(SHOW_HI, 'arg1', 'arg2')
 ```
 ```javascript
 dispatch(showHello('Hello World!'));
+// dispatch action: { type: 'SHOW_HELLO', info: 'Hello World!' }
 
-// action: { type: 'SHOW_HELLO', info: 'Hello World!' }
+dispatch(showHi('one', 'two'));
+// dispatch action: { type: 'SHOW_HI', arg1: 'one', arg2: 'two' }
 ```
 Or
 ```javascript
@@ -40,28 +48,34 @@ export const showHello = createAction(SHOW_HELLO);
 ```javascript
 dispatch(showHello({info: 'Hello World!'}));
 
-// action: { type: 'SHOW_HELLO', info: 'Hello World!' }
+// dispatch action: { type: 'SHOW_HELLO', info: 'Hello World!' }
 ```
 
-### createReducer
+### createReducer(handlers, defaultState, options)
+Generating Reducers
+
+- `handlers`: reducer function object
+- `defaultState`: default state
+- `options`: 
+  * `autoAssign` bool, `default false`. If true will automatically merge returned objects using `Object.assign`
+
 ```javascript
 import { createReducer } from 'redux-act-reducer';
 import { SHOW_HELLO, SHOW_HI } from '../your/actions/path';
 
 const defaultState = {
-  info: undefined
+  info: ''
 };
 
 const hello = createReducer({
   [SHOW_HELLO](state, action) {
-    return {
-      info: action.info
-    };
+    return Object.assign({}, state, { info: action.info });
   },
-  [SHOW_HI]() {
-    return {
-      info: 'hi'
-    };
+  [SHOW_HI](state, action) {
+    return Object.assign({}, state, {
+      arg1: action.arg1,
+      arg2: action.arg2
+    });
   },
 
   ......
@@ -75,7 +89,34 @@ export default hello;
 dispatch(showHello('Hello World!'));
 // state: { hello: { info: 'Hello World!' }, ... }
 ```
-reducer function's return
+#### If `autoAssign` option is true
+```javascript
+import { createReducer } from 'redux-act-reducer';
+import { SHOW_HELLO } from '../your/actions/path';
+
+const defaultState = {
+  info: ''
+};
+
+const hello = createReducer({
+  [SHOW_HELLO](state, action) {
+    return {
+      info: action.info
+    };
+  },
+
+  ......
+
+}, defaultState, { autoAssign: true });
+
+export default hello;
+
+```
+```javascript
+dispatch(showHello('Hello World!'));
+// state: { hello: { info: 'Hello World!' }, ... }
+```
+Reducer function
 ```javascript
 return {
   info: 'hi'
@@ -87,9 +128,47 @@ return Object.assign({}, state, {
   info: 'hi'
 });
 ```
+#### Use Immutable.js
 
-### createActionAsync
+autoAssign option must be false. (default is false)
+
+```javascript
+import { fromJS } from 'immutable';
+import { createReducer } from 'redux-act-reducer';
+import { SHOW_HELLO } from '../your/actions/path';
+
+const defaultState = fromJS({
+  info: ''
+});
+
+const hello = createReducer({
+  [SHOW_HELLO](state, action) {
+    return state.set('info', action.info);
+  },
+  
+  ......
+  
+}, defaultState);
+
+export default hello;
+
+```
+
+## Async
+### createActionAsync(type, api, options)
 works with redux-thunk
+
+- `type` action type
+- `api` a module that sends requests to a server (Please return a promise)
+- `options` (string or object. if it is a string, it is async name)
+  * `name` async name (default: same as `type`)
+  * `isCreateRequest` whether to create and dispatch REQUEST action automatically (default: true)
+  * `isCreateSuccess` whether to create and dispatch SUCCESS action automatically (default: true)
+  * `isCreateFailure` whether to create and dispatch FAILURE action automatically (default: true)
+  * `onRequest` function after REQUEST: onRequest(dispatch)
+  * `onSuccess` function after SUCCESS: onSuccess(dispatch, res)
+  * `onFailure` function after FAILURE: onFailure(dispatch, err)
+
 ```javascript
 import { createActionAsync } from 'redux-act-reducer';
 
@@ -107,21 +186,8 @@ dispatch(showHelloAsync(arg1, arg2));
 // if error: dispatch({ type: 'SHOW_HELLO_ASYNC', subType: 'FAILURE', err, ... });
 // args will pass to api: api(arg1, arg2)
 ```
-#### createActionAsync(type, api, options)
-- `type` action type
-- `api` a module that sends requests to a server (Please return a promise)
-
-  #### options (string or object. if it is a string, it is async name)
-* `name` async name (default: same as `type`)
-* `isCreateRequest` whether to create and dispatch REQUEST action automatically (default: true)
-* `isCreateSuccess` whether to create and dispatch SUCCESS action automatically (default: true)
-* `isCreateFailure` whether to create and dispatch FAILURE action automatically (default: true)
-* `onRequest` function after REQUEST: onRequest(dispatch)
-* `onSuccess` function after SUCCESS: onSuccess(dispatch, res)
-* `onFailure` function after FAILURE: onFailure(dispatch, err)
 
 ```javascript
-//Example
 export const switchFlag = createActionAsync(SWITCH_FLAG, switchFlagApi, {
   name: 'switchFlag',
   onRequest(dispatch) {
@@ -133,7 +199,7 @@ export const switchFlag = createActionAsync(SWITCH_FLAG, switchFlagApi, {
 });
 ```
 
-#### createReducer
+#### async `createReducer` with autoAssign option is true
 ```javascript
 import { createReducer } from 'redux-act-reducer';
 import { SHOW_HELLO_ASYNC } from '../your/actions/path';
@@ -149,7 +215,7 @@ const hello = createReducer({
   // Will automatically generate REQUEST and FAILURE code, so that the code is simple.
   ......
 
-}, defaultState);
+}, defaultState, { autoAssign: true });
 
 export default hello;
 ```
@@ -173,7 +239,7 @@ const hello = createReducer({
 
   ......
 
-}, defaultState);
+}, defaultState, { autoAssign: true });
 
 export default hello;
 ```
@@ -223,7 +289,7 @@ const hello = createReducer({
 
   ......
 
-}, defaultState);
+}, defaultState, { autoAssign: true });
 
 export default hello;
 ```
