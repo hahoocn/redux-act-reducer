@@ -165,9 +165,9 @@ works with redux-thunk
   * `isCreateRequest` whether to create and dispatch REQUEST action automatically (default: true)
   * `isCreateSuccess` whether to create and dispatch SUCCESS action automatically (default: true)
   * `isCreateFailure` whether to create and dispatch FAILURE action automatically (default: true)
-  * `onRequest` function after REQUEST: onRequest(dispatch)
-  * `onSuccess` function after SUCCESS: onSuccess(dispatch, res)
-  * `onFailure` function after FAILURE: onFailure(dispatch, err)
+  * `onRequest` function after REQUEST: onRequest(dispatch, getState)
+  * `onSuccess` function after SUCCESS: onSuccess(dispatch, getState, res)
+  * `onFailure` function after FAILURE: onFailure(dispatch, getState, err)
 
 ```javascript
 import { createActionAsync } from 'redux-act-reducer';
@@ -190,10 +190,10 @@ dispatch(showHelloAsync(arg1, arg2));
 ```javascript
 export const switchFlag = createActionAsync(SWITCH_FLAG, switchFlagApi, {
   name: 'switchFlag',
-  onRequest(dispatch) {
+  onRequest(dispatch, getState) {
     dispatch(shouldUpdate(true));
   },
-  onSuccess(dispatch, res) {
+  onSuccess(dispatch, getState, res) {
     dispatch(shouldUpdate(false));
   }
 });

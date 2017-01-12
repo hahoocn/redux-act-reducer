@@ -1,5 +1,5 @@
 function createActionAsync(type, api, options) {
-  return (...args) => async (dispatch) => {
+  return (...args) => async (dispatch, getState) => {
     const defaultOpts = {
       name: type,
       isCreateRequest: true,
@@ -28,11 +28,11 @@ function createActionAsync(type, api, options) {
       dispatch(actionObj.request);
     }
     if (defaultOpts.onRequest && typeof defaultOpts.onRequest === 'function') {
-      defaultOpts.onRequest(dispatch);
+      defaultOpts.onRequest(dispatch, getState);
     }
 
     try {
-      const res = await api(...args, dispatch);
+      const res = await api(...args, dispatch, getState);
       if (defaultOpts.isCreateSuccess) {
         actionObj.success = {
           type,
@@ -43,7 +43,7 @@ function createActionAsync(type, api, options) {
         dispatch(actionObj.success);
       }
       if (defaultOpts.onSuccess && typeof defaultOpts.onSuccess === 'function') {
-        defaultOpts.onSuccess(dispatch, res);
+        defaultOpts.onSuccess(dispatch, getState, res);
       }
     } catch (err) {
       if (defaultOpts.isCreateFailure) {
@@ -56,7 +56,7 @@ function createActionAsync(type, api, options) {
         dispatch(actionObj.failure);
       }
       if (defaultOpts.onFailure && typeof defaultOpts.onFailure === 'function') {
-        defaultOpts.onFailure(dispatch, err);
+        defaultOpts.onFailure(dispatch, getState, err);
       }
 
       return Promise.reject(actionObj);
